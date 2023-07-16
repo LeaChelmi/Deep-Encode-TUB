@@ -619,39 +619,10 @@ calculated_vmaf = calculate_vmaf(input_file, compressed_file)
 print(calculated_vmaf)
 
 
-# In[91]:
+# In[ ]:
 
 
-import subprocess
-import json
 
-def extract_pix_fmt(video_path):
-    """
-    Extracts the pixel format (pix_fmt) of a video using FFmpeg's ffprobe command.
-
-    Parameters:
-    video_path (str): The file path to the video.
-
-    Returns:
-    str: The pixel format of the video.
-
-    """
-        
-    ffprobe_cmd = f'ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of json "{video_path}"'
-
-    # Execute the ffprobe command
-    result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, shell=True)
-
-    # Parse the JSON output
-    metadata = json.loads(result.stdout)
-    pix_fmt = metadata['streams'][0]['pix_fmt']
-
-    return pix_fmt
-
-# Example usage
-video_file = '/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/vmaf/big_buck_bunny_720p24-Scene-124.mp4'
-pixel_format = extract_pix_fmt(video_file)
-pixel_format
 
 
 # In[ ]:
