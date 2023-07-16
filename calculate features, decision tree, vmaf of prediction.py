@@ -77,6 +77,7 @@ def CreateFeatureTable(directory):
     temporal_info = []
     entropy = []
 
+    pixel_format = []
 
     # iterate over files in the directory
     
@@ -98,6 +99,8 @@ def CreateFeatureTable(directory):
             temporal_info.append(calculate_temporal_information(f))
             entropy.append(calculate_video_entropy(f))
             
+            pixel_format.append(extract_pix_fmt(f))
+            
 
     df = df.assign(Name=filenames,
                    Bitrate=bitrates,
@@ -106,7 +109,8 @@ def CreateFeatureTable(directory):
                    spatial_info=spatial_info,
                    temporal_info=temporal_info,                   
                    fps=fps,
-                   entropy=entropy
+                   entropy=entropy,
+                   pixel_format=pixel_format
                   )
     return df
     
@@ -317,6 +321,29 @@ def calculate_video_entropy(video_path):
     average_entropy = np.mean(entropy_values)
     return average_entropy
 
+def extract_pix_fmt(video_path):
+    """
+    Extracts the pixel format (pix_fmt) of a video using FFmpeg's ffprobe command.
+
+    Parameters:
+    video_path (str): The file path to the video.
+
+    Returns:
+    str: The pixel format of the video.
+
+    """
+        
+    ffprobe_cmd = f'ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of json "{video_path}"'
+
+    # Execute the ffprobe command
+    result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, shell=True)
+
+    # Parse the JSON output
+    metadata = json.loads(result.stdout)
+    pix_fmt = metadata['streams'][0]['pix_fmt']
+
+    return pix_fmt
+
 
 # In[ ]:
 
@@ -479,7 +506,7 @@ test_table.to_csv(csv_file_path, index=False)
 test_table
 
 
-# In[ ]:
+# In[81]:
 
 
 test_table_filter = test_table[test_table['Label'] > test_table['Prediction']]
@@ -524,8 +551,10 @@ for index, row in test_table_filter.iterrows():
         input_vid_res = f"{row['width']}x{row['height']}"
     if 'fps' in row:
         input_vid_fps = f"{row['fps']}"
-        
+      
     current_bitrate = row['Prediction']
+    input_vid_pix_fmt = f"{row['pixel_format']}"
+    
 
     #do encode
     qp0_filename = f"{orig_scenes_loc}/{row['Name']}.mp4"
@@ -542,7 +571,7 @@ for index, row in test_table_filter.iterrows():
     #print(f'current last upper candidate vmaf: {last_upper_candidate_vmaf}')
 
 
-# In[79]:
+# In[89]:
 
 
 
@@ -550,13 +579,14 @@ for index, row in test_table_filter.iterrows():
 
 # TRYNG OTHER OPTION
 
-
+ffmpeg -i {input_path} -c:v libx264 -b:v 1M -pass 1 -f null /dev/null
+ffmpeg -i {input_path} -c:v libx264 -b:v 1M -pass 2 {output_path}
 
 import subprocess
 
 def compress_video(input_path, output_path, target_bitrate):
     # FFmpeg command to compress video to target bitrate
-    ffmpeg_cmd = f'ffmpeg -i "{input_path}" -b:v {target_bitrate} "{output_path}"'
+    ffmpeg_cmd = f"ffmpeg -i "{input_path}" -c:v libx264 -b:v 1M -pass 1 -f null /dev/null ffmpeg -i "{input_path}" -c:v libx264 -b:v 1M -pass 2 "{output_path}"
 
     # Execute the FFmpeg command
     subprocess.run(ffmpeg_cmd, shell=True)
@@ -564,12 +594,12 @@ def compress_video(input_path, output_path, target_bitrate):
 # Example usage
 input_file = '/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/vmaf/big_buck_bunny_720p24-Scene-124.mp4'
 output_file = '/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/vmaf/big_buck_bunny_720p24-Scene-124-comp.mp4'
-target_bitrate = '5000k'  # Set the target bitrate (e.g., 1000 kilobits per second)
+target_bitrate = '2000k'  # Set the target bitrate (e.g., 1000 kilobits per second)
 
 compress_video(input_file, output_file, target_bitrate)
 
 
-# In[80]:
+# In[85]:
 
 
 import subprocess
@@ -587,6 +617,41 @@ compressed_file = '/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/vmaf/bi
 
 calculated_vmaf = calculate_vmaf(input_file, compressed_file)
 print(calculated_vmaf)
+
+
+# In[91]:
+
+
+import subprocess
+import json
+
+def extract_pix_fmt(video_path):
+    """
+    Extracts the pixel format (pix_fmt) of a video using FFmpeg's ffprobe command.
+
+    Parameters:
+    video_path (str): The file path to the video.
+
+    Returns:
+    str: The pixel format of the video.
+
+    """
+        
+    ffprobe_cmd = f'ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of json "{video_path}"'
+
+    # Execute the ffprobe command
+    result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, shell=True)
+
+    # Parse the JSON output
+    metadata = json.loads(result.stdout)
+    pix_fmt = metadata['streams'][0]['pix_fmt']
+
+    return pix_fmt
+
+# Example usage
+video_file = '/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/vmaf/big_buck_bunny_720p24-Scene-124.mp4'
+pixel_format = extract_pix_fmt(video_file)
+pixel_format
 
 
 # In[ ]:
