@@ -31,6 +31,10 @@ add scenedetect to PATH
 PATH=$PATH:'/Users/leon/Library/Python/3.7/bin'
 
 
+PIPELINE SPLIT COMMAND
+scenedetect -i CSGO.y4m -o encodes detect-content split-video -a "-f rawvideo -vcodec rawvideo -s 1920x1080 -r 60 -pix_fmt yuv420p -c:v libx264 -preset ultrafast -qp 0"
+
+
 split into content-seperated scenes (COMPRESSED)
 scenedetect -i big_buck_bunny_720p24.y4m -o scenes_hd detect-content split-video
 
