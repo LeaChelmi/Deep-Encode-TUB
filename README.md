@@ -16,14 +16,14 @@ have all videos for training in one folder, have videos for prediction/evaluatio
 ## Description CSV files:
 
 - extract_metadata.py
-  -- metadata.csv Columns: VideoName,	Resolution,	FPS,	PIX_FMT
+- -- metadata.csv Columns: VideoName,	Resolution,	FPS,	PIX_FMT
 - extract_features.py
 - --features.csv  Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy
 - labeling.py (CHECK)
 - -- labels.csv 
 - merge_features_labes.py
-  -- features_and_labels.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Label
+-- features_and_labels.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Label
 - dt_prediction.py
- -- predictions.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Predicted bitrate
+-- predictions.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Predicted bitrate
 - DT_train_test_part.py
-  -- predictions_for_eval.csv Columns: Bitrate,width,height,spatial_info,temporal_info,fps,entropy,Name,Label,Prediction
+-- predictions_for_eval.csv Columns: Bitrate,width,height,spatial_info,temporal_info,fps,entropy,Name,Label,Prediction
