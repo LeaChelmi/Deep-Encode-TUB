@@ -18,9 +18,9 @@ have all videos for training in one folder, have videos for prediction/evaluatio
 - extract_metadata.py
   -- metadata.csv Columns: VideoName,	Resolution,	FPS,	PIX_FMT
 - extract_features.py
-  --features.csv  Columns:
+- --features.csv  Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy
 - labeling.py (CHECK)
-  -- labels.csv 
+- -- labels.csv 
 - merge_features_labes.py
   -- features_and_labels.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Label
 - dt_prediction.py
