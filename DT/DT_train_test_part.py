@@ -75,7 +75,7 @@ def runDecisionTreeRegressor(folder):
     test_table['Prediction'] = y_predicted
     #save file
     # Specify the file path and name for the CSV file
-    csv_file_path = "predictions.csv"
+    csv_file_path = "predictions_for_eval.csv"
 
     # Save the DataFrame to a CSV file
     test_table.to_csv(csv_file_path, index=False)
