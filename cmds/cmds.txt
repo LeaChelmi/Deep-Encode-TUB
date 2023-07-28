@@ -1,29 +1,59 @@
 cmds
 
 
-convert yuv to mp4 (not working rn)
-ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 25 -pix_fmt yuv420p -i inputfile.yuv -c:v libx264 -preset ultrafast -qp 0 output.mp4
+ENCODE LOSSLESS convert yuv/y4m to mp4
+ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 25 -pix_fmt yuv420p -i inputfile.yuv -c:v libx264 -preset ultrafast [-crf/-qp] 0 output.mp4
+ffmpeg -f rawvideo -vcodec rawvideo -s 4096x2160 -r 59.94 -pix_fmt yuv420p10le -i inputfile.yuv -c:v libx264 -preset ultrafast -qp 0 output.mp4
+
+ENCODE TWO PASS ABR
+ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 25 -pix_fmt yuv420p -i <input> -c:v libx264 -b:v 1M -pass 1 -f null /dev/null
+ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 25 -pix_fmt yuv420p -i <input> -c:v libx264 -b:v 1M -pass 2 <output>.mp4
+
+ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 1 -f null /dev/null
+ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 2 <output>.mp4
+
+DECODE convert mp4 to y4m
+ffmpeg -y -i crf17.mp4 -pix_fmt yuv420p -s 1920x1080 -r 30 -f rawvideo -vcodec rawvideo crf_17_re_rawed_srfv.Y4M
 
 
-play video (not tried)
+PLAY video (working if correct params provided)
 ffplay -f rawvideo -pixel_format rgb24 -video_size 320x240 -framerate 10 input.raw
+ffplay -f rawvideo -pixel_format yuv420p -video_size 1920x1080 -framerate 30 input.raw
+ffplay -f rawvideo -pixel_format yuv420p -video_size 1280x720 -framerate 60 input.raw
+ffplay -f rawvideo -pixel_format yuv420p10le -video_size 4096x2160 -framerate 60 input.raw
 
 
 tiff or cif to mp4
 ffmpeg -i *.tiff -crf 0 OUT.mp4
 
-
+	
 add scenedetect to PATH
 PATH=$PATH:'/Users/leon/Library/Python/3.7/bin'
+
+
+PIPELINE SPLIT COMMAND
+scenedetect -i CSGO.y4m -o encodes detect-content split-video -a "-f rawvideo -vcodec rawvideo -s 1920x1080 -r 60 -pix_fmt yuv420p -c:v libx264 -preset ultrafast -qp 0"
 
 
 split into content-seperated scenes (COMPRESSED)
 scenedetect -i big_buck_bunny_720p24.y4m -o scenes_hd detect-content split-video
 
-
-split into content-seperated scenes (UNCOMPRESSED)
+split into content-seperated scenes (SEMI-COMPRESSED)
 scenedetect -i big_buck_bunny_720p24.y4m -o scenes_hd3 detect-content split-video -a "-map 0 -c:v libx264 -preset veryfast -crf 0 -c:a aac"
+
+split into content-seperated scenes (SOMEWHAT-COMPRESSED) still displayed as mp4 but content is y4m
+scenedetect -i factory_1080p30.y4m -o scenes_hd detect-content split-video -a "-map 0 -c:v copy -c:a copy -f rawvideo -vcodec rawvideo -s 1920x1080 -r 30 -pix_fmt yuv420p"
 
 
 get bitrate of video using ffprobe (video & audio)
 ffprobe -v error -print_format json -show_entries stream=bit_rate input.mp4>output.json
+
+VMAF calc
+vmaf -r temp_raw_video.y4m -w 1280 -h 720 -p 420 -b 10
+vmaf -r factory_1080p30-Scene-001.y4m -d crf17_re_rawed.y4m -w 1920 -h 1080 -p 420 -b 8
+
+get various info
+ffprobe -v error -show_streams input.y4m
+
+VMAF on any format MP4/Y4M
+ffmpeg -i distorted.mp4 -i original.mp4 -filter_complex libvmaf -f null -
