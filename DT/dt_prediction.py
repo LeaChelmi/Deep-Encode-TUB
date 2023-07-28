@@ -68,7 +68,7 @@ def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
                       
     #save file
     # Specify the file path and name for the CSV file
-    csv_file_path = f"{path}/predictions.csv"
+    csv_file_path = f"{path}/dt_predictions.csv"
 
     # Save the DataFrame to a CSV file
     df_for_prediction.to_csv(csv_file_path, index=False)

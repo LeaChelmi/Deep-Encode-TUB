@@ -67,7 +67,6 @@ def runDecisionTreeRegressor(folder):
     print("Features importance \n")
     for item1, item2 in zip(list_of_features, feature_importances):
         print(f"{item1}: {item2}")
-    
 
     test_table = X_test.copy() 
     test_table['Name'] = df['Name'].iloc[X_test.index]
@@ -75,7 +74,7 @@ def runDecisionTreeRegressor(folder):
     test_table['Prediction'] = y_predicted
     #save file
     # Specify the file path and name for the CSV file
-    csv_file_path = "predictions_for_eval.csv"
+    csv_file_path = "dt_predictions_for_eval.csv"
 
     # Save the DataFrame to a CSV file
     test_table.to_csv(csv_file_path, index=False)
