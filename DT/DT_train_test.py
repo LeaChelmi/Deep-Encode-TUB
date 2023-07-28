@@ -83,9 +83,5 @@ def runDecisionTreeRegressor(folder):
     return regressor
 
 
-# run
-path = os.getcwd()
-regressor = runDecisionTreeRegressor(path)
-
 
 

@@ -46,10 +46,6 @@ def mergeFeaturesAndLabels(folder):
     return df
 
 
-# run
-#mergeFeaturesAndLabels('/Users/anastasiya/Documents/MASTER/SOSE23/Deep_Encode/new')
-directory = os.getcwd()
-mergeFeaturesAndLabels(directory)
 
 
 

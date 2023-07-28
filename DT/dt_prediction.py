@@ -76,7 +76,3 @@ def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
     return df_for_prediction
 
 
-# run 
-path_to_features_and_labels = path = os.path.join(os.getcwd(), 'default_dataset')
-path = os.getcwd()
-runPredictionBasedOnOurDataSet(path, path_to_features_and_labels)

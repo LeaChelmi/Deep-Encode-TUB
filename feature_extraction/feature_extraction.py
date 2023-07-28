@@ -296,13 +296,6 @@ def CreateFeatureTable(directory):
     return df
  
 
-# running
-
-directory = os.getcwd()
-
-df = CreateFeatureTable(directory)
-df
-
 
 
 

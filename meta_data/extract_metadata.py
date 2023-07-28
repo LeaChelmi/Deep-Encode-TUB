@@ -95,7 +95,3 @@ def createMetadataCsv(directory):
     
     return df
 
-
-path = os.getcwd()
-createMetadataCsv(path)
-
