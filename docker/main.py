@@ -1,4 +1,11 @@
 import os
+import extract_metadata
+import create_folders
+import split_scenes
+import labeling
+import feature_extraction
+import merge_features_labels
+
 
 def test():
     test = input('prompt\n')
@@ -8,12 +15,12 @@ def test():
 
 def main():
 
-    print('HELLOOO')
-    print(os.path.dirname)
-    print(os.getcwd())
-    if os.path.isdir('misc'):
-        print('FOUND MISC')
-        print(os.listdir('misc'))
+    #print('HELLOOO')
+    #print(os.path.dirname)
+    #print(os.getcwd())
+    #if os.path.isdir('misc'):
+    #    print('FOUND MISC')
+    #    print(os.listdir('misc'))
     
 
     # evaluation or predictions
@@ -43,34 +50,49 @@ def eval_run(learning_model):
         new_data = input('----------------------------------\nDo you want to add data to the data set before running training, testing and evalutaion? [y / n]\n----------------------------------\n')
     
     # select whether NN params should be adjusted accordingly, takes very long
-    if (learning_model == 'nn' and new_data == 'y'):
-        adjust_nn = ''
-        while (adjust_nn != 'y' and adjust_nn != 'n'):
-            adjust_nn = input('----------------------------------\nThe Neural Network has been designed in a way that reflects our training data set. It can be adapted to refelct the new training data set. However, this can take a while! Do you want to adjust the NN? [y / n]\n----------------------------------\n')
+    #if (learning_model == 'nn' and new_data == 'y'):
+    #    adjust_nn = ''
+    #    while (adjust_nn != 'y' and adjust_nn != 'n'):
+    #        adjust_nn = input('----------------------------------\nThe Neural Network has been designed in a way that reflects our training data set. It can be adapted to refelct the new training data set. However, this can take a while! Do you want to adjust the NN? [y / n]\n----------------------------------\n')
+
+    # get data set path
+    dataset_path = os.path.join(os.getcwd(), 'default_dataset')
 
     # if new data should be added to data set, trigger labeling pipeline
     if (new_data == 'y'):
 
-        # get data set path
-        dataset_path = os.path.join(os.getcwd(), 'default_dataset')
-
         # run metadata extraction
-        os.system('python3 extract_metadat.py')
+        print('----------------------------------\n')
+        print('Running Metadata Extraction...')
+        #extract_metadata.createMetadataCsv(dataset_path)
+        print('----------------------------------\n')
 
         # run create_folders.py
-        os.system('python3 create_folders.py')
+        print('Creating Folders...')
+        #create_folders.organize_files(dataset_path)
+        print('----------------------------------\n')
 
         # run split_scenes.py
-        os.system('python3 split_scenes.py')
+        print('Splitting Scenes...')
+        #split_scenes.split_scenes(dataset_path)
+        print('----------------------------------\n')
 
         # labeling
-        os.system('python3 labeling.py')
+        print('Running labeling...')
+        #labeling.labeling(dataset_path)
+        print('----------------------------------\n')
 
         # feature extraction
-        os.system('python3 feature_extraction.py')
+        print('Running feature extraction...')
+        #feature_extraction.CreateFeatureTable(dataset_path)
+        print('----------------------------------\n')
+
 
         # merge features and labels of new data
-        os.system('python3 merge_feature_labels.py')
+        print('Merging Features and Labels')
+        merge_features_labels.mergeFeaturesAndLabels(dataset_path)
+        print('----------------------------------\n')
+
 
         # merge new data to existing dataset 
         #TODO
@@ -80,9 +102,6 @@ def eval_run(learning_model):
     
     
     elif (learning_model == 'nn'):
-        if (adjust_nn == 'y'):
-            #TODO
-            print('smth')
         #TODO
         print('smth')
     else:
@@ -96,7 +115,7 @@ def eval_run(learning_model):
 def pred_run(learning_model):
     
     # run metadata extraction
-    os.system('python3 extract_metadat.py')
+    os.system('python3 extract_metadata.py')
 
     # run create_folders.py
     os.system('python3 create_folders.py')
