@@ -45,7 +45,7 @@ def get_video_properties(video_path):
     # Execute the ffprobe command
     result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, shell=True)
 
-    print(f'Result:\n\n{result}\n\n')
+    #print(f'Result:\n\n{result}\n\n')
 
     # Parse the JSON output
     metadata = json.loads(result.stdout)

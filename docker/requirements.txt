@@ -5,5 +5,7 @@ opencv-python
 pandas
 jsonlib-python3==1.6.1
 scenedetect
-
 meson
+scikit-learn
+matplotlib
+tensorflow

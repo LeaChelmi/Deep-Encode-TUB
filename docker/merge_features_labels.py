@@ -19,8 +19,8 @@ def mergeFeaturesAndLabels(folder):
         Merged DataFrame.
     """
 
-    path_to_features = f'{folder}/features.csv'
-    path_to_labels = f'{folder}/labels.csv'
+    path_to_features = os.path.join(folder, 'features.csv')
+    path_to_labels = os.path.join(folder, 'labels.csv')
 
     #upload 
     df_features = pd.read_csv(path_to_features)
@@ -39,11 +39,12 @@ def mergeFeaturesAndLabels(folder):
 
     #save file
     # Specify the file path and name for the CSV file
-    csv_file_path = f'{folder}/features_and_labels.csv'
+    csv_file_path = os.path.join(folder, 'features_and_labels.csv')
 
     # Save the DataFrame to a CSV file
+    print(f'SAVED FEATURES AND LABELS:\n{df}')
     df.to_csv(csv_file_path, index=False)
-    return df
+    #return df
 
 
 

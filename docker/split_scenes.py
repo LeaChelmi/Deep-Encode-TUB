@@ -26,4 +26,4 @@ def split_scenes(dataset_path):
         # split command
         split_cmd = f'scenedetect -i {raw_video_path} -o {video_path}/scenes detect-content split-video -a "-f rawvideo -vcodec rawvideo -s {res} -r {fps} -pix_fmt {pix_fmt} -c:v libx264 -preset ultrafast -qp 0"'
         split_result = subprocess.run(split_cmd, capture_output=True, text=True, shell=True)
-        print(split_result)
+        #print(split_result)

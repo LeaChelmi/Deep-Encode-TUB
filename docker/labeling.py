@@ -32,12 +32,14 @@ def extract_vmaf(result_string):
 
 # delete test encode after use
 def delete_encode(path):
-    if os.path.isfile(path):
-        # Delete the file
-        os.remove(path)
-        print(f"The file at {path} has been deleted.")
-    else:
-        print(f"No file found at {path}.")
+    #if os.path.isfile(path):
+    #    # Delete the file
+    #    os.remove(path)
+    #    print(f"The file at {path} has been deleted.")
+    #else:
+    #    print(f"No file found at {path}.")
+    os.remove(path)
+    print(f"The file at {path} has been deleted.")
 
 
 def labeling(dataset_path):
@@ -91,7 +93,7 @@ def labeling(dataset_path):
                 print(f'CURRENT BITRATE: {current_bitrate}')
 
                 #do encode
-                encode_path = os.path.join(encodes_path, f'{current_bitrate}M_{scene}.mp4')
+                encode_path = os.path.join(encodes_path, f'{current_bitrate}M_{scene}')
                 encode_command = f'ffmpeg  -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 1 -f null /dev/null &&    \
                                     ffmpeg -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 2 {encode_path}'
                 encode_result = subprocess.run(encode_command, capture_output=True, text=True, shell=True)
@@ -103,7 +105,8 @@ def labeling(dataset_path):
                 #print('VMAF RESULT: ', vmaf_result)
 
                 # delete encode
-                delete_encode(encode_path)
+                #delete_encode(encode_path)
+                os.remove(encode_path)
 
                 vmaf_score=extract_vmaf(str(vmaf_result))
                 print('VMAF SCORE: ', vmaf_score)
