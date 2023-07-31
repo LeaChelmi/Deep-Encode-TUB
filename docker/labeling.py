@@ -17,10 +17,6 @@ bitrate_candidates = np.array(range(1, 65))
 ##################
 
 
-# Specify the folder path where the files are located
-dataset_path = os.path.join(os.getcwd(), 'default_dataset')
-
-
 # extract VMAF value from shell output
 def extract_vmaf(result_string):
     # Extract the number using regex
@@ -36,123 +32,129 @@ def extract_vmaf(result_string):
 
 # delete test encode after use
 def delete_encode(path):
-    if os.path.isfile(path):
-        # Delete the file
-        os.remove(path)
-        print(f"The file at {path} has been deleted.")
-    else:
-        print(f"No file found at {path}.")
+    #if os.path.isfile(path):
+    #    # Delete the file
+    #    os.remove(path)
+    #    print(f"The file at {path} has been deleted.")
+    #else:
+    #    print(f"No file found at {path}.")
+    os.remove(path)
+    print(f"The file at {path} has been deleted.")
 
-# data structures for saving labels
-labels_df = pd.DataFrame()
-labels = []
-scene_names = []
 
-#iterate over videos
-videos = os.listdir(dataset_path)
-for video in videos:
+def labeling(dataset_path):
 
-    video_path = os.path.join(dataset_path, video)
-    if not os.path.isdir(video_path):
-        continue
+    # data structures for saving labels
+    labels_df = pd.DataFrame()
+    labels = []
+    scene_names = []
 
-    scenes_path = os.path.join(video_path, 'scenes')
-    scenes = os.listdir(scenes_path)
+    #iterate over videos
+    videos = os.listdir(dataset_path)
+    for video in videos:
 
-    #create encodes dir
-    encodes_path = os.path.join(scenes_path, 'encodes')
-    if not os.path.isdir(encodes_path):
-        os.makedirs(encodes_path)
+        video_path = os.path.join(dataset_path, video)
+        if not os.path.isdir(video_path):
+            continue
 
-    for scene in scenes:
+        scenes_path = os.path.join(video_path, 'scenes')
+        scenes = os.listdir(scenes_path)
 
-        # path to scene
-        scene_path = os.path.join(scenes_path, scene)
+        #create encodes dir
+        encodes_path = os.path.join(scenes_path, 'encodes')
+        if not os.path.isdir(encodes_path):
+            os.makedirs(encodes_path)
 
-        # set initial fallback label
-        scene_label=-1
+        for scene in scenes:
 
-        #init binary search
-        low = 0
-        high = len(bitrate_candidates) - 1
-        mid = 0
- 
-        #iterations for binary search
-        iterations=math.floor(math.log2(len(bitrate_candidates)))
+            # path to scene
+            scene_path = os.path.join(scenes_path, scene)
 
-        last_upper_candidate_vmaf = 100.0
-        last_upper_candidate=bitrate_candidates[len(bitrate_candidates)-1]
+            # set initial fallback label
+            scene_label=-1
 
-        #BINARY SEARCH OVER BITRATES
-        while range(iterations):
+            #init binary search
+            low = 0
+            high = len(bitrate_candidates) - 1
+            mid = 0
+    
+            #iterations for binary search
+            iterations=math.floor(math.log2(len(bitrate_candidates)))
 
-            # get current bitrate
-            mid = (high + low) // 2
-            current_bitrate=bitrate_candidates[mid]
-            print(f'CURRENT BITRATE: {current_bitrate}')
+            last_upper_candidate_vmaf = 100.0
+            last_upper_candidate=bitrate_candidates[len(bitrate_candidates)-1]
 
-            #do encode
-            encode_path = os.path.join(encodes_path, f'{current_bitrate}M_{scene}.mp4')
-            encode_command = f'ffmpeg  -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 1 -f null /dev/null &&    \
-                                ffmpeg -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 2 {encode_path}'
-            encode_result = subprocess.run(encode_command, capture_output=True, text=True, shell=True)
-            print('ENCODE RESULT: ', encode_result)
+            #BINARY SEARCH OVER BITRATES
+            while range(iterations):
 
-            # calc vmaf
-            vmaf_command = f'ffmpeg -i {encode_path} -i {scene_path} -filter_complex libvmaf -f null -'
-            vmaf_result = subprocess.run(vmaf_command, capture_output=True, text=True, shell=True)
-            print('VMAF RESULT: ', vmaf_result)
+                # get current bitrate
+                mid = (high + low) // 2
+                current_bitrate=bitrate_candidates[mid]
+                print(f'CURRENT BITRATE: {current_bitrate}')
 
-            # delete encode
-            delete_encode(encode_path)
+                #do encode
+                encode_path = os.path.join(encodes_path, f'{current_bitrate}M_{scene}')
+                encode_command = f'ffmpeg  -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 1 -f null /dev/null &&    \
+                                    ffmpeg -v error -i {scene_path} -c:v libx264 -b:v {current_bitrate}M -preset ultrafast -pass 2 {encode_path}'
+                encode_result = subprocess.run(encode_command, capture_output=True, text=True, shell=True)
+                #print('ENCODE RESULT: ', encode_result)
 
-            vmaf_score=extract_vmaf(str(vmaf_result))
-            print('VMAF SCORE: ', vmaf_score)
-            #print(f'current last upper candidate vmaf: {last_upper_candidate_vmaf}')
+                # calc vmaf
+                vmaf_command = f'ffmpeg -i {encode_path} -i {scene_path} -filter_complex libvmaf -f null -'
+                vmaf_result = subprocess.run(vmaf_command, capture_output=True, text=True, shell=True)
+                #print('VMAF RESULT: ', vmaf_result)
 
-            # final iteration
-            if low == high:
-                
-                if vmaf_score > last_upper_candidate_vmaf or vmaf_score < minimum_acceptable_vmaf:
-                    if last_upper_candidate_vmaf == 100:
-                        print(f'ERROR: CANDIDATE WINDOW NOT FITTING!! DID NOT FIND ENCODE THAT IS ABOVE MINIMUM ACCEPTABLE VAMF. CLOSEST ENCODE FOUND AT BITRATE {current_bitrate} AND VMAF {vmaf_score}')
+                # delete encode
+                #delete_encode(encode_path)
+                os.remove(encode_path)
+
+                vmaf_score=extract_vmaf(str(vmaf_result))
+                print('VMAF SCORE: ', vmaf_score)
+                #print(f'current last upper candidate vmaf: {last_upper_candidate_vmaf}')
+
+                # final iteration
+                if low == high:
+                    
+                    if vmaf_score > last_upper_candidate_vmaf or vmaf_score < minimum_acceptable_vmaf:
+                        if last_upper_candidate_vmaf == 100:
+                            print(f'ERROR: CANDIDATE WINDOW NOT FITTING!! DID NOT FIND ENCODE THAT IS ABOVE MINIMUM ACCEPTABLE VAMF. CLOSEST ENCODE FOUND AT BITRATE {current_bitrate} AND VMAF {vmaf_score}')
+                            scene_label=current_bitrate
+                        else:
+                            print(f'CONVERGED: LAST UPPERCANDIDATE IS OPTIMAL. current vmaf_score: {vmaf_score} vs last_upper_candidate_vmaf: {last_upper_candidate_vmaf}')
+                            print(f'FINAL BITRATE LABEL FOR SCENE {scene}: {last_upper_candidate}MBit/s')
+                            scene_label=last_upper_candidate
+                    
+                    elif vmaf_score < last_upper_candidate_vmaf and vmaf_score > minimum_acceptable_vmaf:
+                        print(f'CONVERGED: CURRENT VMAF IS OPTIMAL. current vmaf_score: {vmaf_score} vs last_upper_candidate_vmaf: {last_upper_candidate_vmaf}')
+                        print(f'FINAL BITRATE LABEL FOR SCENE {scene}: {current_bitrate}MBit/s')
                         scene_label=current_bitrate
-                    else:
-                        print(f'CONVERGED: LAST UPPERCANDIDATE IS OPTIMAL. current vmaf_score: {vmaf_score} vs last_upper_candidate_vmaf: {last_upper_candidate_vmaf}')
-                        print(f'FINAL BITRATE LABEL FOR SCENE {scene}: {last_upper_candidate}MBit/s')
-                        scene_label=last_upper_candidate
-                
-                elif vmaf_score < last_upper_candidate_vmaf and vmaf_score > minimum_acceptable_vmaf:
-                    print(f'CONVERGED: CURRENT VMAF IS OPTIMAL. current vmaf_score: {vmaf_score} vs last_upper_candidate_vmaf: {last_upper_candidate_vmaf}')
-                    print(f'FINAL BITRATE LABEL FOR SCENE {scene}: {current_bitrate}MBit/s')
-                    scene_label=current_bitrate
 
+                    else:
+                        print('ERROR DID NOT FIND OPTIMAL BITRATE')
+
+                    break
+
+                elif vmaf_score < minimum_acceptable_vmaf:
+                    low = mid + 1
+            
+                elif vmaf_score > minimum_acceptable_vmaf:
+                    high = mid - 1
+                    last_upper_candidate=current_bitrate
+                    last_upper_candidate_vmaf=vmaf_score
+                
                 else:
                     print('ERROR DID NOT FIND OPTIMAL BITRATE')
 
-                break
+            labels.append(scene_label)
+            scene_names.append(scene)
 
-            elif vmaf_score < minimum_acceptable_vmaf:
-                low = mid + 1
-        
-            elif vmaf_score > minimum_acceptable_vmaf:
-                high = mid - 1
-                last_upper_candidate=current_bitrate
-                last_upper_candidate_vmaf=vmaf_score
-            
-            else:
-                print('ERROR DID NOT FIND OPTIMAL BITRATE')
+        # remove encodes dir
+        os.rmdir(encodes_path)
 
-        labels.append(scene_label)
-        scene_names.append(scene)
+    labels_df = labels_df.assign(Name=scene_names, Label=labels)
 
-    # remove encodes dir
-    os.rmdir(encodes_path)
-
-labels_df = labels_df.assign(Name=scene_names, Label=labels)
-
-labels_path = os.path.join(dataset_path, f'labels_vmaf{minimum_acceptable_vmaf}_candidates{bitrate_candidates[0]}-{bitrate_candidates[len(bitrate_candidates)-1]}.csv')
-labels_df.to_csv(labels_path)
+    labels_path = os.path.join(dataset_path, 'labels.csv')
+    labels_df.to_csv(labels_path)
 
 
 

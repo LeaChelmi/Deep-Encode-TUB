@@ -1,1 +1,11 @@
-os-sys==2.1.4
+#os-sys==2.1.4
+#opencv-python==4.8.0.74
+#ffmpeg-python
+opencv-python
+pandas
+jsonlib-python3==1.6.1
+scenedetect
+meson
+scikit-learn
+matplotlib
+tensorflow

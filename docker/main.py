@@ -1,4 +1,17 @@
 import os
+import extract_metadata
+import create_folders
+import split_scenes
+import labeling
+import feature_extraction
+import merge_features_labels
+import merge_to_final_dataset
+import DT_train_test
+import NN_train_test
+import time
+import dt_prediction
+import NN_prediction
+
 
 def test():
     test = input('prompt\n')
@@ -8,23 +21,23 @@ def test():
 
 def main():
 
-    print('HELLOOO')
-    print(os.path.dirname)
-    print(os.getcwd())
-    if os.path.isdir('misc'):
-        print('FOUND MISC')
-        print(os.listdir('misc'))
+    #print('HELLOOO')
+    #print(os.path.dirname)
+    #print(os.getcwd())
+    #if os.path.isdir('misc'):
+    #    print('FOUND MISC')
+    #    print(os.listdir('misc'))
     
 
     # evaluation or predictions
     eval = ''
     while (eval != 'e' and eval != 'p'):
-        eval = input('----------------------------------\nHello!\nThis is the video encoding prediction tool of Deep Encode Group 2. Do you want to test the pipeline, run training, test and Evaluation or just use the Prediction fucntionality? [e / p]\n----------------------------------\n')
+        eval = input('----------------------------------\nHello!\nThis is the video encoding prediction tool of Deep Encode Group 2. Do you want to test the labeling pipeline, run training & test (use case 1, tt) or use the Prediction fucntionality? [tt / p]\n----------------------------------\n')
 
     # choose learning model
     learning_model = ''
-    while (learning_model != 'nn' and learning_model != 'dt'):
-        learning_model = input('----------------------------------\nThis tool features a Neural Network and a Decision Tree Classifier to predict optimal bitrate achieving an arbitrary VMAF value.\nIn a first step, please enter the Learning Model you want to use [nn / dt]\n----------------------------------\n')
+    while (learning_model != 'nn' and learning_model != 'dt' and learning_model != 'both'):
+        learning_model = input('----------------------------------\nThis tool features a Neural Network and a Decision Tree Classifier to predict optimal bitrate achieving an arbitrary VMAF value.\nIn a first step, please enter the Learning Model you want to use or both [nn / dt / both]\n----------------------------------\n')
     
     if (eval == 'e'):
         eval_run(learning_model)
@@ -37,83 +50,116 @@ def main():
     
         
 def eval_run(learning_model):
+
+     # get data set path
+    dataset_path = os.path.join(os.getcwd(), 'videos_to_add_to_dataset')
+
     # new training data
     new_data = ''
     while (new_data != 'y' and new_data != 'n'):
         new_data = input('----------------------------------\nDo you want to add data to the data set before running training, testing and evalutaion? [y / n]\n----------------------------------\n')
-    
-    # select whether NN params should be adjusted accordingly, takes very long
-    if (learning_model == 'nn' and new_data == 'y'):
-        adjust_nn = ''
-        while (adjust_nn != 'y' and adjust_nn != 'n'):
-            adjust_nn = input('----------------------------------\nThe Neural Network has been designed in a way that reflects our training data set. It can be adapted to refelct the new training data set. However, this can take a while! Do you want to adjust the NN? [y / n]\n----------------------------------\n')
+        print('----------------------------------\n')
 
     # if new data should be added to data set, trigger labeling pipeline
     if (new_data == 'y'):
 
-        # get data set path
-        dataset_path = os.path.join(os.getcwd(), 'default_dataset')
-
         # run metadata extraction
-        os.system('python3 extract_metadat.py')
+        print('Running Metadata Extraction...')
+        extract_metadata.createMetadataCsv(dataset_path)
+        print('\n----------------------------------\n')
 
         # run create_folders.py
-        os.system('python3 create_folders.py')
+        print('Creating Folders...')
+        create_folders.organize_files(dataset_path)
+        print('\n----------------------------------\n')
 
         # run split_scenes.py
-        os.system('python3 split_scenes.py')
+        print('Splitting Scenes...')
+        split_scenes.split_scenes(dataset_path)
+        print('\n----------------------------------\n')
 
         # labeling
-        os.system('python3 labeling.py')
+        print('Running Labeling...')
+        labeling.labeling(dataset_path)
+        print('\n----------------------------------\n')
 
         # feature extraction
-        os.system('python3 feature_extraction.py')
+        print('Running Feature Extraction...')
+        feature_extraction.CreateFeatureTable(dataset_path)
+        print('\n----------------------------------\n')
 
         # merge features and labels of new data
-        os.system('python3 merge_feature_labels.py')
+        print('Merging Features and Labels')
+        merge_features_labels.mergeFeaturesAndLabels(dataset_path)
+        print('\n----------------------------------\n')
+
+        time.sleep(1)
 
         # merge new data to existing dataset 
-        #TODO
+        print('Merging new data to existing dataset')
+        merge_to_final_dataset.merge_to_final_dataset(dataset_path)
+        print('\n----------------------------------\n')
 
-    if (learning_model == 'dt'):
-        os.system('python3 DT_train_and_test.py')
-    
-    
-    elif (learning_model == 'nn'):
-        if (adjust_nn == 'y'):
-            #TODO
-            print('smth')
-        #TODO
-        print('smth')
-    else:
-        print('ERROR')
-    
-    # evaluate
-    os.system('python3 eval.py')
+        time.sleep(1)
 
+
+
+    if (learning_model == 'dt' or learning_model == 'both'):
+        print('Running Descision Tree Training and Test...\n')
+        DT_train_test.runDecisionTreeRegressor(dataset_path)
+        print('\n----------------------------------\n')
+        # print('Running Evaluation...')
+        # eval.run_evaluation(dataset_path, 'DT')
+        # print('----------------------------------\n')
+    
+    if (learning_model == 'nn' or learning_model == 'both'):
+        print('Running Neural Network Training and Test...\n')
+        NN_train_test.runNeuralNetwork(dataset_path)
+        print('\n----------------------------------\n')
+        # print('Running Evaluation...')
+        # eval.run_evaluation(dataset_path, 'NN')
+        # print('----------------------------------\n')
+    
+    
 
 
 def pred_run(learning_model):
+
+    # get data set path
+    dataset_path = os.path.join(os.getcwd(), 'videos_to_predict')
     
     # run metadata extraction
-    os.system('python3 extract_metadat.py')
+    print('----------------------------------\n')
+    print('Running Metadata Extraction...')
+    extract_metadata.createMetadataCsv(dataset_path)
+    print('\n----------------------------------\n')
 
     # run create_folders.py
-    os.system('python3 create_folders.py')
+    print('Creating Folders...')
+    create_folders.organize_files(dataset_path)
+    print('\n----------------------------------\n')
 
     # run split_scenes.py
-    os.system('python3 split_scenes.py')
+    print('Splitting Scenes...')
+    split_scenes.split_scenes(dataset_path)
+    print('\n----------------------------------\n')
 
     # feature extraction
-    os.system('python3 feature_extraction.py')
+    print('Running Feature Extraction...')
+    feature_extraction.CreateFeatureTable(dataset_path)
+    print('\n----------------------------------\n')
 
-    # 
-    if (learning_model == 'dt'):
-        os.system('python3 DT_prediction.py')
-    elif (learning_model == 'nn'):
-        print('TODO')
-    else:
-        print('ERROR')
+    time.sleep(1)
+
+    if (learning_model == 'dt' or learning_model == 'both'):
+        print('Running Descision Tree Prediction...\n')
+        dt_prediction.runPredictionBasedOnOurDataSet(dataset_path)
+        print('\n----------------------------------\n')
+    
+    if (learning_model == 'nn' or learning_model == 'both'):
+        print('Running Neural Network Prediction...\n')
+        NN_prediction.runPredictionBasedOnOurDataSetNN(dataset_path)
+        print('\n----------------------------------\n')
 
 
 if __name__ == "__main__":

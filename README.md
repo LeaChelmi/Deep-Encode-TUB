@@ -27,3 +27,5 @@ have all videos for training in one folder, have videos for prediction/evaluatio
 - -- dt_predictions.csv Columns: Name	Bitrate	width	height	spatial_info	temporal_info	fps	entropy	Predicted bitrate
 - DT_train_test_part.py
 - -- dt_predictions_for_eval.csv Columns: Bitrate,width,height,spatial_info,temporal_info,fps,entropy,Name,Label,Prediction
+- merge_to_final_dataset.py
+- -- updates final_dataset.csv

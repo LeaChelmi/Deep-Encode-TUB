@@ -2,6 +2,10 @@ import os
 import shutil
 
 def organize_files(folder_path):
+
+    # Specify the folder path where the files are located
+    #folder_path = os.path.join(os.getcwd(), 'default_dataset')
+
     # Get a list of all files in the specified folder
     files = os.listdir(folder_path)
 
@@ -9,9 +13,9 @@ def organize_files(folder_path):
     for file_name in files:
 
         # Check for .DS_Store
-        if (file_name == '.DS_Store'):
+        if (file_name == '.DS_Store' or file_name == 'metadata.csv'):
             continue
-        
+
         # Construct the full path of the file
         file_path = os.path.join(folder_path, file_name)
 
@@ -28,12 +32,6 @@ def organize_files(folder_path):
 
             print(f"Moved file '{file_name}' to folder '{folder_name}'.")
 
-
-# Specify the folder path where the files are located
-folder_path = os.path.join(os.getcwd(), 'default_dataset')
-
-# Call the function to organize the files
-organize_files(folder_path)
 
 
 
