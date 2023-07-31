@@ -18,8 +18,8 @@ def merge_to_final_dataset(path):
 
     """
     new_dataset_path = os.path.join(path, 'features_and_labels.csv') # features and labels of a new dataset
-    final_dataset_input_path = os.path.join(os.getcwd(), 'final_dataset.csv') # features and labels of the exising dataset
-    final_dataset_path = os.path.join(path, 'final_dataset_merged.csv')
+    final_dataset_input_path = os.path.join(os.getcwd(), 'default_dataset.csv') # features and labels of the exising dataset
+    final_dataset_path = os.path.join(path, 'final_dataset.csv')
 
     # Read the CSV files into Pandas DataFrames
     df1 = pd.read_csv(new_dataset_path)

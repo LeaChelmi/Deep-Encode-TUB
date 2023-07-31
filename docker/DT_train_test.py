@@ -24,7 +24,7 @@ def runDecisionTreeRegressor(folder):
         regressor: The trained Decision Tree Regressor object.
     """
     
-    df = pd.read_csv(os.path.join(folder, 'final_dataset_merged.csv'))
+    df = pd.read_csv(os.path.join(folder, 'final_dataset.csv'))
     # df is a table with features and labels 
     #where label is in the last column called Label
     #Name is the first column called Name

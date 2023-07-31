@@ -64,6 +64,7 @@ def GetBitrate(video_path):
     # Get video duration in seconds using FFprobe
     ffprobe_cmd = f'ffprobe -i "{video_path}" -show_entries format=duration -v quiet -of csv="p=0"'
     result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, shell=True)
+    print(result)
     print(f'RESULT:\n\n{result.stdout.strip()}')
     if (result.stdout.strip() == 'N/A'):
         return -1.0

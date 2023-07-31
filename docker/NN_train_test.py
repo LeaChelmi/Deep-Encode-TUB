@@ -24,7 +24,7 @@ def runNeuralNetwork(folder):
     
     # Load data from the CSV file
     # data is a table with features and labels
-    data = pd.read_csv(os.path.join(folder, 'final_dataset_merged.csv'))
+    data = pd.read_csv(os.path.join(folder, 'final_dataset.csv'))
     
     # Separate features (X) and labels (Y)
     X = data[['Bitrate','width','height','spatial_info','temporal_info','fps','entropy']]

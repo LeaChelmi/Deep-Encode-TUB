@@ -8,8 +8,9 @@ import merge_features_labels
 import merge_to_final_dataset
 import DT_train_test
 import NN_train_test
-import eval
 import time
+import dt_prediction
+import NN_prediction
 
 
 def test():
@@ -31,7 +32,7 @@ def main():
     # evaluation or predictions
     eval = ''
     while (eval != 'e' and eval != 'p'):
-        eval = input('----------------------------------\nHello!\nThis is the video encoding prediction tool of Deep Encode Group 2. Do you want to test the pipeline, run training, test and Evaluation or just use the Prediction fucntionality? [e / p]\n----------------------------------\n')
+        eval = input('----------------------------------\nHello!\nThis is the video encoding prediction tool of Deep Encode Group 2. Do you want to test the labeling pipeline, run training & test (use case 1, tt) or use the Prediction fucntionality? [tt / p]\n----------------------------------\n')
 
     # choose learning model
     learning_model = ''
@@ -51,7 +52,7 @@ def main():
 def eval_run(learning_model):
 
      # get data set path
-    dataset_path = os.path.join(os.getcwd(), 'default_dataset')
+    dataset_path = os.path.join(os.getcwd(), 'videos_to_add_to_dataset')
 
     # new training data
     new_data = ''
@@ -62,30 +63,30 @@ def eval_run(learning_model):
     # if new data should be added to data set, trigger labeling pipeline
     if (new_data == 'y'):
 
-        # # run metadata extraction
-        # print('Running Metadata Extraction...')
-        # extract_metadata.createMetadataCsv(dataset_path)
-        # print('\n----------------------------------\n')
+        # run metadata extraction
+        print('Running Metadata Extraction...')
+        extract_metadata.createMetadataCsv(dataset_path)
+        print('\n----------------------------------\n')
 
-        # # run create_folders.py
-        # print('Creating Folders...')
-        # create_folders.organize_files(dataset_path)
-        # print('\n----------------------------------\n')
+        # run create_folders.py
+        print('Creating Folders...')
+        create_folders.organize_files(dataset_path)
+        print('\n----------------------------------\n')
 
-        # # run split_scenes.py
-        # print('Splitting Scenes...')
-        # split_scenes.split_scenes(dataset_path)
-        # print('\n----------------------------------\n')
+        # run split_scenes.py
+        print('Splitting Scenes...')
+        split_scenes.split_scenes(dataset_path)
+        print('\n----------------------------------\n')
 
-        # # labeling
-        # print('Running labeling...')
-        # labeling.labeling(dataset_path)
-        # print('\n----------------------------------\n')
+        # labeling
+        print('Running Labeling...')
+        labeling.labeling(dataset_path)
+        print('\n----------------------------------\n')
 
-        # # feature extraction
-        # print('Running feature extraction...')
-        # feature_extraction.CreateFeatureTable(dataset_path)
-        # print('\n----------------------------------\n')
+        # feature extraction
+        print('Running Feature Extraction...')
+        feature_extraction.CreateFeatureTable(dataset_path)
+        print('\n----------------------------------\n')
 
         # merge features and labels of new data
         print('Merging Features and Labels')
@@ -125,9 +126,10 @@ def eval_run(learning_model):
 def pred_run(learning_model):
 
     # get data set path
-    dataset_path = os.path.join(os.getcwd(), 'default_dataset')
+    dataset_path = os.path.join(os.getcwd(), 'videos_to_predict')
     
     # run metadata extraction
+    print('----------------------------------\n')
     print('Running Metadata Extraction...')
     extract_metadata.createMetadataCsv(dataset_path)
     print('\n----------------------------------\n')
@@ -143,15 +145,21 @@ def pred_run(learning_model):
     print('\n----------------------------------\n')
 
     # feature extraction
-    os.system('python3 feature_extraction.py')
+    print('Running Feature Extraction...')
+    feature_extraction.CreateFeatureTable(dataset_path)
+    print('\n----------------------------------\n')
 
-    # 
-    if (learning_model == 'dt'):
-        os.system('python3 DT_prediction.py')
-    elif (learning_model == 'nn'):
-        print('TODO')
-    else:
-        print('ERROR')
+    time.sleep(1)
+
+    if (learning_model == 'dt' or learning_model == 'both'):
+        print('Running Descision Tree Prediction...\n')
+        dt_prediction.runPredictionBasedOnOurDataSet(dataset_path)
+        print('\n----------------------------------\n')
+    
+    if (learning_model == 'nn' or learning_model == 'both'):
+        print('Running Neural Network Prediction...\n')
+        NN_prediction.runPredictionBasedOnOurDataSetNN(dataset_path)
+        print('\n----------------------------------\n')
 
 
 if __name__ == "__main__":

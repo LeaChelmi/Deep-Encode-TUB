@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 
 #THIS IS STEP 2 and 3
 
-def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
+def runPredictionBasedOnOurDataSet(path):
     #path is the path to the features extracted from the videos for which we need prediction
     
     """
@@ -32,7 +32,7 @@ def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
 
     #path_to_features_and_labels = os.path.join(os.getcwd(), 'default_dataset')
     
-    df = pd.read_csv(f"{path_to_features_and_labels}/features_and_labels.csv")
+    df = pd.read_csv(os.path.join(os.getcwd(), 'default_dataset.csv'))
     # df is a table with features and labels 
     #where label is in the last column called Label
     #Name is the first column called Name
@@ -57,7 +57,7 @@ def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
     regressor.fit(X, y)
     
     #Predict
-    df_for_prediction = pd.read_csv(f"{path}/features.csv")
+    df_for_prediction = pd.read_csv(os.path.join(path, 'features.csv'))
     
     #part of the table with featuresonly, wthout columnName
     df_for_prediction_a = df_for_prediction.iloc[:, 1:]
@@ -65,10 +65,11 @@ def runPredictionBasedOnOurDataSet(path, path_to_features_and_labels):
     y_predicted = regressor.predict(df_for_prediction_a)
 
     df_for_prediction['Predicted bitrate'] = y_predicted
+    print(df_for_prediction[['Name', 'Predicted bitrate']])
                       
     #save file
     # Specify the file path and name for the CSV file
-    csv_file_path = f"{path}/dt_predictions.csv"
+    csv_file_path = os.path.join(path, 'predictions_DT.csv')
 
     # Save the DataFrame to a CSV file
     df_for_prediction.to_csv(csv_file_path, index=False)
